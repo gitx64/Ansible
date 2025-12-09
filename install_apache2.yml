@@ -8,8 +8,11 @@
     apt:
       name: apache2
       state: latest
-        
+    when: ansible_distribution == "ubuntu"
+    
+    # when: ansible_distribution in ["Debian","ubuntu"] for the mix of two types like both debian and ubuntu uses apt as default package manager.
   - name: installing php support for apache2 package
     apt:
       name: libapache2-mod-php
       state: latest
+    when: ansible_distribution == "ubuntu"
