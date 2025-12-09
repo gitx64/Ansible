@@ -1,0 +1,13 @@
+---
+- hosts: myhosts #targeted host servers
+  become: true #rootful previleges
+  tasks: #tasks to be done
+
+  - name: update repository index #name of the task (taken as comment)
+    apt: #module
+      update_cache: yes #task done by the module
+
+  - name: install apache2 package
+    apt:
+      name: apache2
+      state: latest #version for package(absent for deleting).

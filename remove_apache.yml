@@ -1,0 +1,10 @@
+---
+
+- hosts: myhosts
+  become: true
+  tasks:
+
+  - name: removing apache2 from server
+    apt:
+      name: apache2*
+      state: absent #for state management like present absent latest which makes sense. see in the docs of ansible.

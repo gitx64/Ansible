@@ -1,0 +1,15 @@
+---
+
+- hosts: myhosts
+  become: true
+  tasks:
+
+  - name: installing apache2 server
+    apt:
+      name: apache2
+      state: latest
+        
+  - name: installing php support for apache2 package
+    apt:
+      name: libapache2-mod-php
+      state: latest
