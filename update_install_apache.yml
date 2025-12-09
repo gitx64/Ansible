@@ -1,13 +1,26 @@
 ---
-- hosts: myhosts #targeted host servers
-  become: true #rootful previleges
-  tasks: #tasks to be done
+- hosts: myhosts 
+  become: true 
+  tasks: 
 
-  - name: update repository index #name of the task (taken as comment)
-    apt: #module
-      update_cache: yes #task done by the module
+  - name: update repository index 
+    apt: 
+      update_cache: yes 
+    when: ansible_distribution == "Ubuntu"
 
   - name: install apache2 package
     apt:
       name: apache2
-      state: latest #version for package(absent for deleting).
+      state: latest 
+    when: ansible_distribution == "Ubuntu"
+
+  - name: update repository index 
+    dnf: 
+      update_cache: yes 
+    when: ansible_distribution == "AlmaLinux"
+
+  - name: install apache2 package
+    dnf:
+      name: httpd
+      state: latest 
+    when: ansible_distribution == "AlmaLinux"
