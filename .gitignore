@@ -1,1 +1,4 @@
-inventory*
+*.retry
+inventory
+inventory.*
+# End of https://mrkandreev.name/snippets/gitignore-generator/\#Ansible
