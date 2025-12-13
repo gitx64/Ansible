@@ -1,0 +1,60 @@
+---
+
+#for all hosts 
+- hosts: myhosts 
+  become: true 
+  pre_tasks: 
+  #pre_tasks: this is for if you want to do something before the actual tasks of the playbook .
+  - name: installing updates only (Alma)
+    tags: always
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "AlmaLinux"
+
+    
+  - name: installing updates only (Ubuntu)
+    tags: always
+    ansible.builtin.apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+
+#for webservers only
+- hosts: web_servers 
+  become: true
+  tasks:
+ 
+  - name: installing updates, apache, php (AlmaLinux)
+    tags: apache,php,updates,alma
+    dnf:
+      name:
+        - httpd
+        - php
+    when: ansible_distribution == "AlmaLinux"
+    
+  - name: installing updates only (Ubuntu)
+    tags: apache,php,updates,ubuntu
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+    - name: installing mariadb (ubuntu)
+      tags: db,mariadb,ubuntu
+      apt:
+        name: mariadb
+      when: ansible_distribution == "Ubuntu" 
+
+    
+    - name: installing mariadb (Alma)
+      tags: db,mariadb,Alma
+      dnf:
+        name: mariadb
+      when: ansible_distribution == "AlmaLinux" 

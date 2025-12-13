@@ -3,7 +3,7 @@
 - hosts: myhosts #for all hosts 
   become: true 
   tasks: 
-
+  #pre_tasks: this is for if you want to do something before the actual tasks of the playbook .
   - name: installing updates only (Centos)
     dnf:
       updates_only: yes
@@ -12,9 +12,9 @@
 
     
   - name: installing updates only (Ubuntu)
-    apt:
+    ansible.builtin.apt:
       upgrade: dist
-      updates_only: yes
+      # updates_only: yes
       update_cache: yes
     when: ansible_distribution == "Ubuntu"
 
@@ -32,7 +32,7 @@
   - name: installing updates only (Ubuntu)
     apt:
       upgrade: dist
-      updates_only: yes
+      # updates_only: yes
       update_cache: yes
     when: ansible_distribution == "Ubuntu"
 
@@ -44,3 +44,20 @@
       state: latest 
       update_cache: yes
 
+- hosts: db_servers
+  become: true
+  tasks:
+
+    - name: install mariadb
+      apt:
+        name: mariadb
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: install mariadb
+      dnf:
+        name: mariadb
+        update_cache: yes
+      when: ansible_distribution == "CentOS" 
+
+  
