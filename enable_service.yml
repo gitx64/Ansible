@@ -1,0 +1,12 @@
+---
+
+- hosts: myhosts
+  become: true
+  tasks:
+
+    - name: enable httpd on almalinux
+      tags: apache,httpd,alma
+      service:
+        name: httpd
+        state: started
+      when: ansible_distribution == "AlmaLinux"

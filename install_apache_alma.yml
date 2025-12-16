@@ -1,0 +1,11 @@
+---
+
+- hosts: myhosts
+  become: true
+  tasks:
+
+    - name: install httpd on Alma
+      tags: apache,httpd,alma
+      dnf:
+        name: httpd
+      when: ansible_distribution == "AlmaLinux"
