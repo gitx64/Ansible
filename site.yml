@@ -1,0 +1,59 @@
+---
+
+- hosts: myhosts #for all hosts 
+  become: true 
+  pre_tasks: 
+  #pre_tasks: this is for if you want to do something before the actual tasks of the playbook .
+  - name: installing updates only (Alma)
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "AlmaLinux"
+
+    
+  - name: installing updates only (Ubuntu)
+    ansible.builtin.apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: web_servers 
+  become: true
+  tasks:
+ 
+  - name: install apache2 and php support packages
+    package: 
+      name:
+        - "{{ apache_package }}"
+        - "{{ php_package }}"
+      state: latest 
+      update_cache: yes
+
+  - name: copy default html file for site
+    tags: apache,apache2,html
+    copy:
+      src: default_site.html
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+    - name: install mariadb
+      tags: db,mariadb,ubuntu
+      apt:
+        name: mariadb
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu"
+
+    - name: install mariadb
+      tags: db,mariadb,alma
+      dnf:
+        name: mariadb
+        update_cache: yes
+      when: ansible_distribution == "AlmaLinux" 
+
+  
