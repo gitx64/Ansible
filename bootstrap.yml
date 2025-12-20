@@ -1,0 +1,44 @@
+---
+
+- hosts: myhosts #for all hosts 
+  become: true 
+  pre_tasks: 
+  #pre_tasks: this is for if you want to do something before the actual tasks of the playbook .
+  - name: installing updates only (Alma)
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "AlmaLinux"
+  
+  - name: installing updates only (Ubuntu)
+    ansible.builtin.apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: all
+  become: true
+  tasks:
+    - name: creating user Avenger and inserting it to a group
+      tags: useradd,always
+      user:
+        name: avenger
+        groups: root
+    
+    - name: adding authorized key for user avenger
+      tags: always
+      authorized_key:
+        user: avenger
+        key: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
+        state: present
+        
+    - name: adding user Avenger into sudoers group
+      tags: sudoers,always
+      copy:
+        src: sudoers_avenger   
+        dest: /etc/sudoers.d/avenger
+        owner: root
+        group: root
+        mode: 0440
+  
+ 
