@@ -38,6 +38,30 @@
       group: root
       mode: 0644
 
+  - name: start apache as a service in server (Alma)
+    tags: apache,httpd,alma
+    service:
+       name: httpd
+       state: started
+       # enabled: yes for enabling the systemctl service.
+    when: ansible_distribution == "AlmaLinux"
+
+  - name: modifying file content on a specific file (Alma)
+    tags: apache,httpd,alma
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin somebody@somewhere.net
+    when: ansible_distribution == "AlmaLinux"
+    register: httpd
+
+  - name: service restarted (AlmaLinux)
+    tags: apache,httpd,alma
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed # it will check if the register* property is changed or not from previous checkpoint after running that module in which it is stated as httpd.
+    
 - hosts: db_servers
   become: true
   tasks:

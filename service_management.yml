@@ -49,23 +49,20 @@
       mode: 0644
 
 
+  - name: modifying file content on a specific file (Alma)
+    tags: apache,httpd,alma
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^ServerAdmin'
+      line: ServerAdmin root@localhost
+    when: ansible_distribution == "AlmaLinux"
+    register: httpd
 
-- hosts: db_servers
-  become: true
-  tasks:
+  - name: service restarted (AlmaLinux)
+    tags: apache,httpd,alma
+    service:
+      name: httpd
+      state: restarted
+    when: httpd.changed # it will check if the register* property is changed or not from previous checkpoint after running that module in which it is stated as httpd.
 
-    - name: install mariadb
-      tags: db,mariadb,ubuntu
-      apt:
-        name: mariadb
-        update_cache: yes
-      when: ansible_distribution == "Ubuntu"
-
-    - name: install mariadb
-      tags: db,mariadb,alma
-      dnf:
-        name: mariadb
-        update_cache: yes
-      when: ansible_distribution == "AlmaLinux" 
-
-  
+ 
