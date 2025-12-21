@@ -4,104 +4,32 @@
   become: true 
   pre_tasks: 
   #pre_tasks: this is for if you want to do something before the actual tasks of the playbook .
-  - name: installing updates only (Alma)
+  - name: Update repository index(Alma)
     dnf:
-      update_only: yes
-      update_cache: yes
+      # update_only: yes
+      update_cache: true
+      changed_when: false
     when: ansible_distribution == "AlmaLinux"
   
   - name: installing updates only (Ubuntu)
     ansible.builtin.apt:
-      upgrade: dist
-      update_cache: yes
+      # upgrade: dist
+      update_cache: true
+      changed_when: false
     when: ansible_distribution == "Ubuntu"
 
 - hosts: all
   become: true
-  tasks:
-    - name: creating user Avenger and inserting it to a group
-      tags: useradd,always
-      user:
-        name: avenger
-        groups: root
-    
-    - name: adding authorized key for user avenger
-      tags: always
-      authorized_key:
-        user: avenger
-        key: "{{ lookup('file', '~/.ssh/ansible.pub') }}"
-        state: present
-        
-    - name: adding user Avenger into sudoers group
-      tags: sudoers,always
-      copy:
-        src: sudoers_avenger   
-        dest: /etc/sudoers.d/avenger
-        owner: root
-        group: root
-        mode: 0440
+  roles:
+    - base    
   
 - hosts: web_servers 
   become: true
-  tasks:
- 
-  - name: install apache2 and php support packages
-    package: 
-      name:
-        - "{{ apache_package }}"
-        - "{{ php_package }}"
-      state: latest 
-      update_cache: yes
+  roles:
+    - web_servers
 
-  - name: copy default html file for site
-    tags: apache,apache2,html
-    copy:
-      src: default_site.html
-      dest: /var/www/html/index.html
-      owner: root
-      group: root
-      mode: 0644
-
-  - name: start apache as a service in server (Alma)
-    tags: apache,httpd,alma
-    service:
-       name: httpd
-       state: started
-       # enabled: yes for enabling the systemctl service.
-    when: ansible_distribution == "AlmaLinux"
-
-  - name: modifying file content on a specific file (Alma)
-    tags: apache,httpd,alma
-    lineinfile:
-      path: /etc/httpd/conf/httpd.conf
-      regexp: '^ServerAdmin'
-      line: ServerAdmin somebody@somewhere.net
-    when: ansible_distribution == "AlmaLinux"
-    register: httpd
-
-  - name: service restarted (AlmaLinux)
-    tags: apache,httpd,alma
-    service:
-      name: httpd
-      state: restarted
-    when: httpd.changed # it will check if the register* property is changed or not from previous checkpoint after running that module in which it is stated as httpd.
-    
 - hosts: db_servers
   become: true
-  tasks:
-
-    - name: install mariadb
-      tags: db,mariadb,ubuntu
-      apt:
-        name: mariadb
-        update_cache: yes
-      when: ansible_distribution == "Ubuntu"
-
-    - name: install mariadb
-      tags: db,mariadb,alma
-      dnf:
-        name: mariadb
-        update_cache: yes
-      when: ansible_distribution == "AlmaLinux" 
-
+  roles:
+    - db_servers
   

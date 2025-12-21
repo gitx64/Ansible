@@ -1,0 +1,56 @@
+- name: install httpd package (Alma)
+  tags: apache,httpd,alma
+  dnf:
+    name: httpd
+    state: latest
+  when: ansible_distribution == "AlmaLinux"
+
+- name: enable httpd service
+  tags: apache,httpd,alma
+  service:
+    name: httpd
+    state: started
+    enabled: true
+  when: ansible_distribution == "AlmaLinux"
+
+
+- name: install httpd package (Ubuntu)
+  tags: apache,httpd,alma
+  apt:
+    name: apache2
+    state: latest
+  when: ansible_distribution == "Ubuntu"
+
+
+- name: enable httpd service
+  tags: apache,httpd,alma
+  service:
+    name: apache2
+    state: started
+    enabled: true
+  when: ansible_distribution == "Ubuntu"
+
+- name: copy the html file to servers
+  tags: always
+  copy:
+    src: default_site.html
+    dest: /var/www/html/index.html
+    owner: root
+    group: root
+    mode: 0744
+
+- name: modify file content (Alma)
+  tags: apache,httpd,alma
+  lineinfile:
+    path: /etc/httpd/conf/httpd.conf
+    regexp: '^ServerAdmin'
+    line: ServerAdmin root@localhost
+  when: ansible_distribution == "AlmaLinux"
+  register: httpd
+
+- name: service restarted (AlmaLinux)
+  tags: apache,httpd,alma
+  service:
+    name: httpd
+    state: restarted
+  when: httpd.changed
